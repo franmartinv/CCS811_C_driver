@@ -88,7 +88,7 @@ esp_err_t CCS811_write_register(uint8_t CCS811_register, uint8_t CCS811_register
 }
 
 
-/*
+/**
  * 	@brief		Data writing in CCS811 (only defines data register direction)
  *
  *  @param[in]		CCS811_register		:	(uint8_t)		command of the register where we want to write
@@ -224,7 +224,7 @@ esp_err_t CCS811_software_reset()
  * 				First it reads the LSB, then it compares if the value introduced.
  * 				Because we need to stop the sensor for some time to use it correctly.
  *
- *	@param[in]	mode_number	:	(uint8_t)	sensor operation mode number. It is indicated in CCS811.h
+ * @param[in]	mode_number	:	(uint8_t)	sensor operation mode number. It is indicated in CCS811.h
  *											It will work if it is equal to global values
  *
  */
@@ -306,7 +306,7 @@ int CCS811_mode(uint8_t mode_number)
 }
 
 
-/*
+/**
  * @brief	Baseline configuration. It is automatically by the sensor, but only read and then write.
  * 			The value of the baseline is transparent for the engineer.
  *
@@ -360,9 +360,9 @@ int CCS811_init(uint8_t mode_number)
 	int i2c_slave_port = I2C_SLAVE_NUM;
 	i2c_config_t conf_slave;
 	memset(&conf_slave, 0, sizeof(i2c_config_t));
-		conf_slave.sda_io_num = I2C_MASTER_SDA_IO;
+		conf_slave.sda_io_num = 21;
 		conf_slave.sda_pullup_en = GPIO_PULLUP_ENABLE;
-		conf_slave.scl_io_num = I2C_MASTER_SCL_IO;
+		conf_slave.scl_io_num = 22;
 		conf_slave.scl_pullup_en = GPIO_PULLUP_ENABLE;
 		conf_slave.mode = I2C_MODE_SLAVE;
 		conf_slave.slave.addr_10bit_en = 0;
@@ -389,7 +389,7 @@ int CCS811_init(uint8_t mode_number)
 		if(ret != ESP_OK) {
 			printf("ERROR reading ERROR register: %x\n",ret);
 		}
-		printf("ERROR code: %x",buffer_out);
+		printf("ERROR code reading ID: %x\n",buffer_out);
 
 		return -1;
 	}
@@ -535,15 +535,15 @@ void CCS811_temperature_humidity_compensation(BME680_calib_t *NVM_coef, float *h
 
 
 /**
- * @brief			CO2 and TVOC sensors read
+ * @brief		Read all variables: temperature, pressure, humidity, TVOC and eco2
  *
- * @param[in]		mode_number				:	(uint8_t)			Depending on the mode number, a delay time will be left for them to be sampled the data and the go to read it
- * @param[in]		*eco2					:	(uint8_t)			pointer to variable eco2 that will contain the value of eco2 (carbon dioxide)
- * @param[in]		*TVOC					:	(uint8_t)			pointer to TVOC variable that will contain the value of TVOC (particles in suspension)
- * @param[in]		*hum_comp				:	(float)				pointer to compensate humidity variable
- * @param[in]		*tempe_comp				:	(float)				pointer to compensate temperature variable
- * @param[in]		*press_comp				:	(float)				pointer to compensate pressure variable
- * @param[in]		*NVM_coef				:	(BME680_calib_t)	pointer to BME680_calib_t which stores the BME680 calibration data
+ * @param[in]		mode_number		:	(uint8_t)	Depending on the mode number, a delay time will be left for them to be sampled the data and the go to read it
+ * @param[in]		*eco2			:	(uint8_t)	pointer to variable eco2 that will contain the value of eco2 (carbon dioxide)
+ * @param[in]		*TVOC			:	(uint8_t)	pointer to TVOC variable that will contain the value of TVOC (particles in suspension)
+ * @param[in]		*hum_comp		:	(float)		pointer to compensate humidity variable
+ * @param[in]		*tempe_comp		:	(float)		pointer to compensate temperature variable
+ * @param[in]		*press_comp		:	(float)		pointer to compensate pressure variable
+ * @param[in]		*NVM_coef		:	(BME680_calib_t)	pointer to BME680_calib_t which stores the BME680 calibration data
  *
  */
 
@@ -616,4 +616,3 @@ int CCS811_read_all_variables(uint8_t mode_number, uint16_t *eco2, uint16_t *TVO
 #ifdef __cplusplus
 }
 #endif
-
