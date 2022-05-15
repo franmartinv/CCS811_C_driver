@@ -2,10 +2,12 @@
 #include <stdbool.h>
 #include <esp_err.h>
 
+#ifndef BME680_H_
+#define BME680_H_
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 // Parametros para conexion I2C
 #define 	I2C_MASTER_FREQ_HZ          	100000
@@ -142,7 +144,7 @@ extern "C" {
 #define		BME680_heater_profile_9			0x09	// (1001)
 
 
-// Coefficient address for reading calibration data
+// Coefficient address
 #define 	BME680_COEFF_ADDR1				0x89
 #define 	BME680_COEFF_ADDR2				0xE1
 #define 	BME680_COEFF_SIZE				41
@@ -198,7 +200,6 @@ extern "C" {
 #define 	N_MEAS								6
 #define 	BME680_MAX_OVERFLOW_VAL      INT32_C(0x40000000)
 
-
 typedef struct {
 	// calibration coefficients of temperature
 	uint16_t		BME680_par_T1;
@@ -239,9 +240,6 @@ typedef struct {
 
 } BME680_calib_t;
 
-
-// **********************************
-
 esp_err_t 	BME680_read(uint8_t * buffer_out, uint8_t BME680_command, unsigned size);
 esp_err_t 	BME680_write_command(uint8_t BME680_command);
 esp_err_t 	BME680_write_register(uint8_t BME680_register, uint8_t BME680_register_value);
@@ -255,14 +253,9 @@ int16_t 	BME680_temperature_compensation(uint32_t temp_adc, BME680_calib_t *NVM_
 uint32_t 	BME680_humidity_compensation(uint16_t hum_adc, BME680_calib_t *NVM_coef);
 int 		BME680_get_data(float *press_comp, float *hum_comp, float *tempe_comp, BME680_calib_t *NVM_coef);
 
-
-// **********************************
-
-
-
 #ifdef __cplusplus
 }
 #endif
-
+#endif
 
 

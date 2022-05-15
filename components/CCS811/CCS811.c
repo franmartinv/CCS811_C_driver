@@ -616,3 +616,4 @@ int CCS811_read_all_variables(uint8_t mode_number, uint16_t *eco2, uint16_t *TVO
 #ifdef __cplusplus
 }
 #endif
+

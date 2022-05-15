@@ -16,8 +16,6 @@ extern "C"
 {
 #endif
 
-
-
 // Configuracion de I2C
 #define 	I2C_MASTER_FREQ_HZ          		100000
 #define 	I2C_MASTER_TX_BUF_DISABLE   		0                          /*!< I2C master doesn't need buffer */
@@ -114,9 +112,6 @@ extern "C"
 #define		CCS811_HEATER_SUPPLY				0x20
 
 
-// ********************************
-
-
 esp_err_t 	CCS811_write_register(uint8_t CCS811_register, uint8_t CCS811_register_value);
 esp_err_t 	CCS811_write_byte(uint8_t CCS811_register, unsigned size);
 esp_err_t 	CCS811_write_data_register(uint8_t CCS811_register, uint8_t *buffer_in, unsigned size);
@@ -128,9 +123,6 @@ void 		CCS811_configuring_baseline();
 int 		CCS811_init(uint8_t mode_number);
 void 		CCS811_temperature_humidity_compensation(BME680_calib_t *NVM_coef, float *hum_comp, float *tempe_comp, float *press_comp);
 int 		CCS811_read_all_variables(uint8_t mode_number, uint16_t *eco2, uint16_t *TVOC, float *hum_comp, float *tempe_comp, float *press_comp, BME680_calib_t *NVM_coef);
-
-
-// ********************************
 
 
 #ifdef __cplusplus
