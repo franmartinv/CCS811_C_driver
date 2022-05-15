@@ -8,7 +8,7 @@
 *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *
 *			1. Master initialition with function "	hal_i2c_init();	".
-*			2. BME680 slave initialition with function "	BME680_init(mode_number);	".
+*			2. BME680 slave initialition with function "	CCS811_init(mode_number);	".
 *				2.1. Oversampling for all sensor is configured by default (in this driver) with x2 coefficient
 *			3. Create a "BME680_calib_t" struct, where we are going to safe the calibration coefficients
 *			4. Create some "float" variables for save the final temperature, humidity and pressure values
@@ -53,7 +53,7 @@ extern "C" {
 #endif
 
 
-/*
+/**
  * @brief Data reading of BMP680
  *
  * @param[in]		* buffer_out	:	(uint8_t)	pointer to array buffer_out
@@ -89,8 +89,8 @@ esp_err_t BME680_read(uint8_t * buffer_out, uint8_t BME680_command, unsigned siz
 }
 
 
-/*
- * @brief Data writting in BME680
+/**
+ * @brief 			Data writing in BME680
  *
  * @param[in]		BME680_command	: 	(uint8_t)		command to where we want to write
  *
@@ -113,8 +113,8 @@ esp_err_t BME680_write_command(uint8_t BME680_command)
 }
 
 
-/*
- * @brief Data writting in BME680
+/**
+ * @brief 			Data writing in BME680
  *
  * @param[in]		BME680_register			: (uint8_t)		command to where we want to write
  * @param[in]		BME680_register_value	: (uint8_t) 	value that we want to write in the register called BME680_register
@@ -140,7 +140,7 @@ esp_err_t BME680_write_register(uint8_t BME680_register, uint8_t BME680_register
 
 
 /**
- * @brief	Calibration coefficients reading
+ * @brief			Calibration coefficients reading
  *
  * @param[in]		* NVM_coef		: (BME680_calib_t)	pointer to struct that contains all of the calibration coefficients
  *
@@ -155,11 +155,14 @@ esp_err_t BME680_calibration_data(BME680_calib_t *NVM_coef)
 
 	ret = BME680_read(buffer_out, BME680_COEFF_ADDR1, BME680_COEFF_ADDR1_LEN);
 	if(ret != ESP_OK) {
-		printf("ERROR reading coefficients at addres 1 (%x): %x", BME680_COEFF_ADDR1, ret);
+		printf("ERROR reading coefficients at address 1 (%x): %x\n", BME680_COEFF_ADDR1, ret);
 	}
+
+	vTaskDelay(100/portTICK_RATE_MS);
+
 	ret = BME680_read(&buffer_out[BME680_COEFF_ADDR1_LEN], BME680_COEFF_ADDR2, BME680_COEFF_ADDR2_LEN);
 	if(ret != ESP_OK) {
-		printf("ERROR reading coefficients at addres 2 (%x): %x", BME680_COEFF_ADDR2, ret);
+		printf("ERROR reading coefficients at address 2 (%x): %x\n", BME680_COEFF_ADDR2, ret);
 	}
 
 
@@ -197,14 +200,14 @@ esp_err_t BME680_calibration_data(BME680_calib_t *NVM_coef)
 	// Reading of other coefficients
 	ret = BME680_read(buffer_out, BME680_ADDR_RES_HEAT_RANGE_ADDR, 1);
 	if(ret != ESP_OK) {
-		printf("ERROR reading temperature range: %x", ret);
+		printf("ERROR reading temperature range: %x\n", ret);
 		buffer_out[0] = 0;
 	}
 	(NVM_coef -> res_heat_range) = ((buffer_out[0] & 0x30) / 16);
 
 	ret = BME680_read(buffer_out, BME680_ADDR_RES_HEAT_VAL_ADDR, 1);
 	if(ret != ESP_OK) {
-		printf("ERROR reading heater register values: %x", ret);
+		printf("ERROR reading heater register values: %x\n", ret);
 		buffer_out[0] = 0;
 	}
 	(NVM_coef -> res_heat_val) = (int8_t)buffer_out[0];
@@ -240,7 +243,7 @@ esp_err_t BME680_calibration_data(BME680_calib_t *NVM_coef)
 
 
 /**
- * @brief	Set sensor settings
+ * @brief			Set sensor settings
  *
  * @param[in]		* NVM_coef		: (BME680_calib_t)	pointer to struct that contains all of the calibration coefficients
  *
@@ -369,7 +372,7 @@ int BME680_set_mode()
 
 
 /**
- * @brief	Reset sensor function
+ * @brief			Reset sensor function
  *
  * @param[out]		ret		: (esp_err_t)	variable that indicates if there was a problem resetting the hardware
  *
@@ -397,31 +400,7 @@ esp_err_t BME680_reset_function()
 
 
 /**
- * @brief	Master initialition
- *
- */
-void hal_i2c_init()
-{
-	int i2c_master_port = I2C_MASTER_NUM;
-	i2c_config_t conf;
-		conf.mode = I2C_MODE_MASTER;
-	    conf.sda_io_num = I2C_MASTER_SDA_IO;
-	    conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
-	    conf.scl_io_num = I2C_MASTER_SCL_IO;
-	    conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
-	    conf.master.clk_speed = I2C_MASTER_FREQ_HZ;
-	    conf.clk_flags = 0;
-	i2c_param_config(i2c_master_port, &conf);
-	i2c_driver_install(i2c_master_port, conf.mode,
-			I2C_MASTER_RX_BUF_DISABLE,
-			I2C_MASTER_TX_BUF_DISABLE, 0);
-
-	vTaskDelay(100/portTICK_RATE_MS);
-}
-
-
-/**
- * @brief	Slave initialition
+ * @brief			Slave initialition
  *
  * @param[in]		* NVM_coef		: (BME680_calib_t)	pointer to BME680_calib_t struct variable called NVM_coef
  *
@@ -434,12 +413,11 @@ int BME680_init(BME680_calib_t *NVM_coef)
 	int i2c_slave_port = I2C_SLAVE_NUM;
 	i2c_config_t conf_slave;
 	memset(&conf_slave, 0, sizeof(i2c_config_t));
-		conf_slave.sda_io_num = I2C_MASTER_SDA_IO;
+		conf_slave.sda_io_num = 21;
 		conf_slave.sda_pullup_en = GPIO_PULLUP_ENABLE;
-		conf_slave.scl_io_num = I2C_MASTER_SCL_IO;
+		conf_slave.scl_io_num = 22;
 		conf_slave.scl_pullup_en = GPIO_PULLUP_ENABLE;
 		conf_slave.mode = I2C_MODE_SLAVE;
-		conf_slave.slave.addr_10bit_en = 0;
 		conf_slave.slave.slave_addr = BME680_I2C_ADDRESS;
 	i2c_param_config(i2c_slave_port, &conf_slave);
 	i2c_driver_install(i2c_slave_port, I2C_MODE_SLAVE,
@@ -505,7 +483,7 @@ int BME680_init(BME680_calib_t *NVM_coef)
 
 
 /**
- * @brief	Pressure data compensation
+ * @brief			Pressure data compensation
  *
  * @param[in]		pres_adc		: (uint32_t)		raw pressure data read from the ADC
  * @param[in]		* NVM_coef		: (BME680_calib_t)	pointer to struct that contains all of the calibration coefficients
@@ -542,7 +520,7 @@ uint32_t BME680_pressure_compensation(uint32_t pres_adc , BME680_calib_t *NVM_co
 
 
 /**
- * @brief	Temperature data compensation
+ * @brief			Temperature data compensation
  *
  * @param[in]		temp_adc		: (uint32_t)		raw temperature data read from the ADC
  * @param[in]		* NVM_coef		: (BME680_calib_t)	pointer to struct that contains all of the calibration coefficients
@@ -567,7 +545,7 @@ int16_t BME680_temperature_compensation(uint32_t temp_adc, BME680_calib_t *NVM_c
 
 
 /**
- * @brief	Humidity data compensation
+ * @brief			Humidity data compensation
  *
  * @param[in]		hum_adc			: (uint32_t)		raw humidity data read from the ADC
  * @param[in]		* NVM_coef		: (BME680_calib_t)	pointer to struct that contains all of the calibration coefficients
@@ -599,7 +577,7 @@ uint32_t BME680_humidity_compensation(uint16_t hum_adc, BME680_calib_t *NVM_coef
 
 
 /**
- * @brief	Getting sensor data and then doing the compensation
+ * @brief			Getting sensor data and then doing the compensation
  *
  * @param[in]		* press_comp		: (float)			pointer to valor of the pressure compensate
  * @param[in]		* hum_comp			: (float)			pointer to valor of the humidity compensate
