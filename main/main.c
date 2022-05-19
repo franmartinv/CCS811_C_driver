@@ -19,13 +19,13 @@ void hal_i2c_init();
 void app_main(void)
 {
 	BME680_calib_t		NVM_coef;
-	uint16_t			mode_number;
-	uint16_t			eco2, TVOC;
-	float				hum_comp, tempe_comp, press_comp;
+	uint16_t		mode_number;
+	uint16_t		eco2, TVOC;
+	float			hum_comp, tempe_comp, press_comp;
 
 	mode_number = 1;
 
-	hal_i2c_init();					// Master initialition
+	hal_i2c_init();				// Master initialition
 
 	vTaskDelay(100/portTICK_RATE_MS);
 
